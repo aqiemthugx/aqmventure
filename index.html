@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!-- saved from url=(0071)https://venture-portfolio.preview.emergentagent.com/static/js/bundle.js -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <iframe id="contentFrame" src="./index_files/loading-preview.html" allowfullscreen=""></iframe>
+<script>
+  // Combined message listener + "go to home" logic for the iframe
+
+  // Existing message listener (keeps previous behavior)
+  window.addEventListener('message', function(event) {
+    // Console log removed/commented to reduce noise in production
+    // console.log(event.origin);
+    // Optional: check event.origin for security if needed
+    if (event.data && event.data.type === 'reload') {
+      window.location.reload();
+    }
+    if (event.data && event.data.type === 'url') {
+      window.open(event.data.url, '_blank');
+    }
+  });
+
+  // When the iframe loads, try to navigate it to Home
+  (function() {
+    const iframe = document.getElementById('contentFrame');
+    if (!iframe) return;
+
+    iframe.addEventListener('load', function() {
+      try {
+        // Try to set the iframe's hash directly (works when same-origin)
+        const iw = iframe.contentWindow;
+        // Try simple anchor first, then hash route
+        iw.location.hash = '#home';
+        // Small fallback to attempt hash-route after a short delay
+        setTimeout(() => {
+          if (!iw.location.hash || iw.location.hash === '#') {
+            iw.location.hash = '#/home';
+          }
+        }, 50);
+      } catch (err) {
+        // If cross-origin (access blocked), fallback by rewriting the src with hash
+        if (!iframe.src.includes('#home') && !iframe.src.includes('#/home')) {
+          // Append '#home' — change to '#/home' if your app uses hash routes
+          iframe.src = iframe.src + '#home';
+        }
+      }
+    });
+
+    // If iframe already loaded before listener attached, trigger manually
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && doc.readyState === 'complete') {
+        setTimeout(() => { iframe.dispatchEvent(new Event('load')); }, 50);
+      }
+    } catch (e) {
+      // cross-origin — nothing to trigger, but src fallback will work on next load
+    }
+  })();
+</script>
+
+
+</body></html>
